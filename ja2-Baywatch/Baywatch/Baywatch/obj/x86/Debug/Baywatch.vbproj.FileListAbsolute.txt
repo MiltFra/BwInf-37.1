@@ -1,0 +1,9 @@
+I:\Projekte\Baywatch_bwinf_auf2\Baywatch\Baywatch\bin\Debug\Baywatch.exe
+I:\Projekte\Baywatch_bwinf_auf2\Baywatch\Baywatch\bin\Debug\Baywatch.pdb
+I:\Projekte\Baywatch_bwinf_auf2\Baywatch\Baywatch\bin\Debug\Baywatch.xml
+I:\Projekte\Baywatch_bwinf_auf2\Baywatch\Baywatch\obj\x86\Debug\Baywatch.Form1.resources
+I:\Projekte\Baywatch_bwinf_auf2\Baywatch\Baywatch\obj\x86\Debug\Baywatch.Resources.resources
+I:\Projekte\Baywatch_bwinf_auf2\Baywatch\Baywatch\obj\x86\Debug\Baywatch.vbproj.GenerateResource.Cache
+I:\Projekte\Baywatch_bwinf_auf2\Baywatch\Baywatch\obj\x86\Debug\Baywatch.exe
+I:\Projekte\Baywatch_bwinf_auf2\Baywatch\Baywatch\obj\x86\Debug\Baywatch.xml
+I:\Projekte\Baywatch_bwinf_auf2\Baywatch\Baywatch\obj\x86\Debug\Baywatch.pdb

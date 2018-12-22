@@ -1,0 +1,604 @@
+\documentclass[a4paper,10pt,ngerman]{scrartcl}
+\usepackage{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[a4paper,margin=2.5cm,footskip=0.5cm]{geometry}
+
+% Die nächsten drei Felder bitte anpassen:
+\newcommand{\Aufgabe}{Aufgabe 5: Widerstand} % Aufgabennummer und Aufgabennamen angeben
+\newcommand{\TeamID}{00922}       % Team-ID aus dem PMS angeben
+\newcommand{\TeamName}{Zweiundvierzig} % Team-Namen angeben
+\newcommand{\Namen}{Franz Miltz} % Namen der Bearbeiter/-innen dieser Aufgabe angeben
+ 
+% Kopf- und Fußzeilen
+\usepackage{scrlayer-scrpage, lastpage}
+\setkomafont{pageheadfoot}{\large\textrm}
+\lohead{\Aufgabe}
+\rohead{Team-ID: \TeamID}
+\cfoot*{\thepage{}/\pageref{LastPage}}
+
+% Position des Titels
+\usepackage{titling}
+\setlength{\droptitle}{-1.0cm}
+
+% Für mathematische Befehle und Symbole
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Für Bilder
+\usepackage{graphicx}
+\graphicspath{./images/}
+
+% Für Algorithmen
+\usepackage{algpseudocode}
+
+% Für Quelltext
+\usepackage{listings}
+\usepackage{color}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\lstset{
+  keywordstyle=\color{blue},commentstyle=\color{mygreen},
+  stringstyle=\color{mymauve},rulecolor=\color{black},
+  basicstyle=\footnotesize\ttfamily,numberstyle=\tiny\color{mygray},
+  captionpos=b, % sets the caption-position to bottom
+  keepspaces=true, % keeps spaces in text
+  numbers=left, numbersep=5pt, showspaces=false,showstringspaces=true,
+  showtabs=false, stepnumber=2, tabsize=2, title=\lstname
+}
+\lstdefinelanguage{JavaScript}{ % JavaScript ist als einzige Sprache noch nicht vordefiniert
+  keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof, new, return, switch, this, throw, try, typeof, var, void, while, with},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  sensitive=true
+}
+
+% Diese beiden Pakete müssen zuletzt geladen werden
+%\usepackage{hyperref} % Anklickbare Links im Dokument
+\usepackage{cleveref}
+
+% Daten für die Titelseite
+\title{\textbf{\Huge\Aufgabe}}
+\author{\LARGE Team-ID: \LARGE \TeamID \\\\
+	    \LARGE Team-Name: \LARGE \TeamName \\\\
+	    \LARGE Bearbeiter/-innen dieser Aufgabe: \\ 
+	    \LARGE \Namen\\\\}
+\date{\LARGE\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\vspace{0.5cm}
+
+\section{Lösungsidee}
+Das Problem l\"asst sich in zwei gleicherma\ss en anspruchsvolle Teile gliedern.
+Einerseits muss herausgefunden werden, welche Widerst\"ande man wie zusammen bauen
+kann und andererseits muss das Ergebnis visualisiert werden.
+\subsection{Ermittlung der Widerst\"ande}
+Um meine Probleml\"osung zu verstehen, muss man sich \"uberlegen, welche Arten von
+Widerst\"anden es gibt. Gem\"a\ss\ der Aufgabenstellung k\"onnen Widerst\"ande entweder
+elementar sein oder aus genau zwei Teilwiderst\"anden bestehen. Au\ss erdem wurde
+durch die Limitierung auf vier Komponenten sichergestellt, dass die Stromrichtung stets 
+eindeutig ist und jeder Widerstand in der Rechnung nur genau ein mal auftauchen kann.
+(Danke daf\"ur an das BwInf-Team!)\\
+\indent Das bedeutet, dass ein Widerstand mit vier Teilen immer aus zwei Widerst\"anden
+besteht, die entweder beide zwei Elementarwiderst\"ande enthalten oder ein mal aus
+einem und ein mal aus drei Komponenten bestehen. Die Menge der Elementarwiderst\"ande
+sei $E$ und die Menge zusammengesetzter Widerst\"ande $C$. Dabei ist $C_i$ die Menge
+aller Widerst\"ande, die sich aus $i$ der gegebenen Elementarwiderst\"ande bauen l\"asst.
+\begin{align}
+  C_1 &= E\\
+  |C_i| &= 2 \cdot \sum_{k=1}^{int(\frac{i}{2})} |C_{k}| \cdot |C_{i-k}| 
+\end{align}
+Es k\"onnen also alle zusammengesetzten Widerst\"ande ermittelt 
+werden, ohne die jeweils
+gr\"o\ss eren zu kennen. Folglich kann damit begonnen werden alle 
+Widerst\"ande aus zwei
+Teilen zu generieren, dann jene aus drei Teilen usw. Dabei muss 
+es jedoch vermieden werden,
+dass Elementarwiderst\"ande mehrfach verwendet werden.
+\subsection{Visualisierung}
+Die Visualisierung ist von der Idee her ziemlich simpel. Das Ergebnis ist zwar nicht
+optimal, erf\"ullt aber den Zweck. Durch die verschiedenen Widerstandsarten kann
+hier rekursiv gearbeitet werden. Jeder Widerstand hat eine eigene Funktion, die
+auf einem Bild in einem bestimmten Bereich jenen Widerstand einzeichnet. Dabei
+verbinden Elementarwiderst\"ande die beiden Anschl\"usse und zeichnen einen Widerstand
+in die Mitte. Sequentielle Widerst\"ande halbieren den Bereich horizontal, sodass
+in die beiden Teilrechtecke die Teile gezeichnet werden k\"onnen. Prallele Widerst\"ande
+haben einen Rand, in dem die Anschl\"usse mit denen der Teile verbunden werden.
+Der restliche Teil des zur Verf\"ugung stehenden Bereiches wird dann vertikal geteilt,
+sodass die beiden Teile \"ubereinander gezeichnet werden k\"onnen. In die Widerst\"ande
+werden dann noch die Einzelwiderst\"ande gezeichnet und in die Ecke des Bildes wird
+der Gesamtwiderstand geschrieben.\\
+\indent Mit dieser Herangehensweise m\"ussen einige Konstanten von Anfang an gut
+gew\"ahlt werden, dazu jedoch mehr in der Umsetzung.
+\section{Umsetzung}
+Das Programm wurde f\"ur Python 3.7.1 auf einem Linux-System geschrieben 
+und nur dort
+getestet. Ben\"otigt wird au\ss erdem eine Fork der PIL
+(Python Imaging Library), Pillow.
+\begin{equation*}
+    \texttt{\$ pip install pillow} 
+\end{equation*}
+Des Weiteren wurde die GNU FreeMono Schriftart 
+(https://www.fontspace.com/gnu-freefont/freemono)
+verwendet. Das Programm (\texttt{widerstand.py}) sollte aus dem Ordner heraus
+ausgef\"uhrt werden, damit auf die Schriftart zugegriffen werden kann.
+Der Output befindet sich dann einerseits in der Konsole und andererseits wird
+eine Bilddatei (\texttt{output/rXXX.png}) erstellt. Dabei ist im Dateinamen der
+Gesamtwiderstand der Schaltung als ganze Zahl vorhanden. Die Software sollte
+als Proof-of-Concept betrachtet werden, da es an Nutzerfreundlichkeit mangelt.\\
+\indent Auch hier werde ich die Visualisierung getrennt vom Rest des Programms 
+thematisieren. 
+\subsection{Modellierung}
+Das Problem umfasst drei verschieden Widerst\"ande. Diese wuden durch Klassen dargestellt.
+Die Basis-Klasse, \texttt{Resistor}, hat einen Wert (\texttt{Resistor.value}) und kann diesen
+\"uber \texttt{Reistor.get\_value} zur\"uckgeben. Au\ss erdem entspricht sowohl
+die Struktur, als auch die String-Repr\"asentation einfach dem eigenen Wert.\\
+\indent Weiterhin gibt es den \texttt{SequentialResistor}, der aus zwei Teilwiderst\"anden
+(\texttt{part1} und \texttt{part2}) besteht, die in Reihe geschalten sind. Somit ist
+der Gesamtwiderstand gleich der Summe der beiden Teilwiderst\"ande.
+\begin{align}
+    R = R_1 + R_2 
+\end{align}
+Der String besteht aus dem Gesamtwiderstand und der Struktur.
+Die Struktur besteht aus der Art des Widerstandes (\texttt{seq}) sowie den
+Strukturen der beiden Teilwiderst\"ande.\\ 
+\indent Zuletzt existiert die Klasse (\texttt{ParallelResistor}), die
+Teilwiderst\"ande in einer Parallelschaltung beschreibt. Folglich gilt f\"ur den
+Gesamtwiderstand $R$ (\texttt{ParallelResistor.value}):
+\begin{align}
+  \frac{1}{R} &= \frac{1}{R_1} + \frac{1}{R_2} \\
+  \Leftrightarrow \frac{1}{R} &= \frac{R_1 + R_2}{R_1 \cdot R_2}\\
+  \Leftrightarrow R &=\frac{R_1\cdot R_2}{R_1 + R_2}
+\end{align}
+Die String-Repr\"asentation sowie die Struktur verhalten sich analog zum
+sequentiellen Widerstand. Beide zusammegesetzte Widerst\"ande erfordern zwei
+Teilwiderst\"ande im Konstruktor. Der Basis-Widerstand erfordert lediglich
+einen Wert. 
+\subsection{Berechnung der Widerst\"ande}
+Mit der oben beschriebenen L\"osungsidee und der soeben thematisierten
+Visualisierung wird es einfach, alle Widerst\"ande zu berechnen. Zun\"achst
+muss jedoch die Liste der Elementarwiderst\"ande in einen \texttt{Counter},
+d.h. ein Dictionary mit der Anzahl der Widerst\"ande, konvertiert werden.
+Diese Elementarwiderst\"ande sind dann gleichzeitig zusammengesetzte
+Widerst\"ande mit genau einem Teil.\\
+\indent Wenn nun also die \texttt{set\_combined\_parts}-Funktion aufgerufen
+wird, m\"ussen ein paar F\"alle behandelt werden. Sollte das \"ubergebene
+$k<2$ sein, so wird wurde bereits alles erledigt. Wenn die Widerst\"ande
+f\"ur $k-1$ noch nicht berechnet wurden, muss dies zun\"achst erledigt werden.
+D.h., man muss die Methode nicht mehrmals aufrufen, die Rekursion sorgt
+daf\"ur, dass alles n\"otige im Voraus berechnet wird.\\
+\indent Nun m\"ussen alle M\"oglichkeiten, $k$ auf die beiden Teilwiderst\"ande
+zu verteilen, durchlaufen werden. Au\ss erhalb dieser Schleife wird bereits
+eine Kandidatenliste erstellt, die nach und nach gef\"ullt werden soll.
+In der Schleife gibt es eine weitere Kandidatenliste, die am Ende auf
+Duplikate \"uberpr\"uft wird, bevor sie zu den eigentlichen Kandidaten
+hinzugef\"ugt wird. F\"ur jede der Verteilungen $(l, k-l)$ werden alle
+zusammengesetzten Widerst\"ande mit $l$ Teilen mit allen zusammengesetzten
+Widerst\"anden mit $(k-l)$ teilen kombiniert. F\"ur jede dieser Kombinationen
+gibt es zwei Kandidaten, d.h. sequentiell und parallel.\\
+\indent Das Entfernen der Duplikate erfolgt in einer sortierten Liste
+(nach Gesamtwiderst\"anden), wobei benachbarte Elemente \"uberpr\"uft
+werden. Hierbei ist ein Duplikat ein Widerstand, der den gleichen
+Gesamtwiderstand mit den gleichen Elementarwiderst\"anden erzeugt.
+Ich bin mir der Tatsache bewusst, dass dieser Ansatz nicht zu 100 Prozent 
+funktioniert, da Duplikate eventuell durch andere Widerst\"ande mit
+dem gleichen Gesamtwiderstand voneinander getrennt werden. In den meisten
+F\"allen sollte diese Vorgehensweise jedeoch zielf\"uhrend sein. Eine
+genauere Methode w\"are in Bezug auf den Rechenaufwand unproportional
+zu dem Gewinn, der durch die verringerte Anzahl an Widerst\"anden
+erzielt wird.
+\subsection{Finden des besten Widerstandes}
+Hierzu wird eine Bin\"arsuche verwendet, die eine wesentlich bessere
+Laufzeit ($O(log(n))$) hat, als das einfache durchlaufen der
+Widerstandsliste ($O(n)$). Leider wird dieser Vorteil dadurch relativiert,
+dass die Liste sortiert werden muss, was bei dem Betrachten jedes
+Elementes nicht der Fall w\"are.\\
+\indent In der Aufgabenstellung wird gefordert, dass f\"ur jedes
+$k \leq 4$ der zusammengesetzte Widerstand mit m\"oglichst geringer
+Abweichung zu finden ist. Also wird eine Liste mit den besten Widerst\"anden
+f\"ur jedes $k$ erstellt. Des Weiteren kommen in jedem Schritt nur Widerst\"ande
+hinzu. Es kann also mit einer leeren Liste an Kandidaten begonnen werden und
+in jeder Iteration wird die Liste erweitert und neu sortiert.
+Es g\"abe sicherlich eine algorithmisch ausgepfeiltere Methode die neuen
+Widerst\"ande mit den bereits vorhandenen zu vereinigen und gleichzeitig
+zu sortieren (s. Merge-Sort), aber die Laufzeit ist nicht unannehmbar und
+wie bereits erw\"ahnt handelt es sich um ein Proof-of-Concept und kein
+nutzerfreundliches Endprodukt.\\
+\indent Es folgt die Bin\"arsuche. Hierf\"ur wird ein Intervall solange
+verkleinert, bis es entweder minimal gro\ss\ ist oder die Mitte genau
+den gesuchten Wert enth\"alt. Dabei umfasst das Intervall $[a, b]$ zun\"achst
+die gesamte Liste. Anschlie\ss end wird die Mitte $c=\frac{a+b}{2}$ berechnet.
+Nun gibt es drei F\"alle (berachtet wird immer der Gesamtwiderstand des
+Elementes):
+\begin{enumerate}
+  \item Die Mitte ist gr\"o\ss er als der gesuchte Wert.\\
+        \Rightarrow Die Mitte ist das neue rechte Intervallende $b$.
+  \item Die Mitte ist kleiner als der gesuchte Wert. \\
+        \Rightarrow Die Mitte ist das neue linke Intervallende $a$.
+  \item Die Mitte ist genauso gro\ss\ wie der gesuchte Wert.\\
+        \Rightarrow Die Suche ist fertig.
+\end{enumerate}
+Nachdem die Suche beendet ist, muss nat\"urlich \"uberpr\"uft werden, welche
+Abbruchbedingung erf\"ullt wurde. Entweder ist $a+1=b$, dann muss \"uberpr\"uft
+werden, ob $a$ oder $b$ n\"aher am gesuchten Wert liegt oder das ist nicht so,
+dann steht fest, dass $c$ den gesuchten Wert enth\"alt. Nun wird der beste
+Wert der Liste f\"ur die besten Widerst\"ande f\"ur jedes $k$ hinzugef\"ugt. 
+Sollte der exakte Wert gefunden worden sein, so wird die Liste mit jenem
+Widerstand gef\"ullt, da der Widerstand von $k$ auch f\"ur $k+1$ verwendet
+werden kann und keine geringere Abweichung mehr existiert. 
+\subsection{Visualisierung}
+Der Code f\"ur die Visualisierung befindet sich haupts\"achlich in den
+Widerstandsklassen. Es gibt jedoch eine Funktion, die die erste 
+\texttt{draw}-Funktion aufruft und ein Bild erstellt. Au\ss erdem ist diese
+Funktion f\"ur das Abspeichern verantwortlich. Da es sich hierbei um eine
+Bibliothek handelt, m\"ochte ich den Quellcode genauer thematisieren.
+\lstset{language=Python}
+\begin{lstlisting}
+def draw_resistor(r, path):
+  width, height = 800, 600
+  im = Image.new('RGBA', (width, height), (255, 255, 255, 255))
+  dctx = ImageDraw.Draw(im)
+  fnt = ImageFont.truetype('font/FreeMono.ttf')
+  r.draw(dctx, fnt, 0, 0, width, height,
+        width//9, width//27)
+  dctx.text((10, 10), 'R = ' + str(r.get_value()) + ' Ohm', fill=(0, 0, 0, 255))
+  im.save(path+'.png')
+\end{lstlisting}
+Zun\"achst wird die Gr\"o\ss e des Bildes auf $800\times 600$ festgelegt. Diese
+Werte haben keinen tieferen Sinn und eignen sich lediglich gut, um den Text lesbar
+zu halten, w\"ahrend die Schaltung noch auf das Bild passt.\\
+\indent Anschlie\ss end wird ein neues Bild erstellt, welches zun\"achst wei\ss 
+gef\"ullt ist. Au\ss erdem wird die oben bereits beschriebene Schriftart geladen
+und eine Draw-Umgebung (\emph{draw context}) erstellt. Nun kann der Widerstand mit Hilfe der
+\texttt{draw}-Methode des Widerstandsobjektes auf das Bild gemalt werden.
+\"Ubergeben wird der Bereich, in dem gemalt werden darf (das gesamte Bild),
+die Schriftart, die Draw-Umgebung sowie die Gr\"o\ss e des Widerstandes als
+Schaltungsbaustein. Diese Gr\"o\ss e ist wichtig. Zun\"achst habe ich 
+geschaut, welches Seitenverh\"altnis gut aussieht und bin auf 3:1 gekommen. 
+Nun ist es wichtig, dass gen\"ugend Widerst\"ande nebeneinander passen.
+Hierbei k\"onnte man meinen, es m\"ussten nur vier sein. Da das Bild jedoch immer
+halbiert wird und die Widerst\"ande nicht zwingend gleichm\"a\ss ig verteilt sind,
+m\"ussen acht Bausteine einkalkuliert werden (In jeder H\"alfte bis zu vier).
+Dabei kann der konstante Rand der parallelen Widerst\"ande unbeachtet bleiben,
+da dieser nicht auftritt, wenn vier Widerst\"ande (die maximale Anzahl) in
+Reihe geschalten werden. Folglich darf ein Widerstand nicht breiter als ein
+Achtel des Bildes sein. Wenn man ein Neuntel w\"ahlt, sind die Verbindungen
+zwischen den Widerst\"anden noch erkennbar. Solange das Bild nicht mehr als
+drei mal so breit wie hoch ist, spielt die H\"ohe der Einzelwiderst\"ande
+keine Rolle.\\
+\indent Nachdem die Schaltung gemalt wurde, wird der Gesamtwiderstand in die
+Ecke links oben geschrieben. Anschlie\ss end kann das Bild gespeichert werden.\\
+\indent Der Code f\"ur das Zeichnen der Einzelwiderst\"ande ist sehr
+unverst\"andlich. Am einfachsten ist hierbei der Reihenwiderstand, bei dem
+nur die \texttt{draw}-Methoden der beiden Teile f\"ur die jeweiligen H\"alften
+des vorgesehenen Bereiches aufgerufen werden. Auch relativ einfach ist der
+Elementarwiderstand. Hier wird die Mitte berchnet und ein Rechteck 
+gezeichnet, was die Gr\"o\ss e hat, die durch $\texttt{xr, yr}$ festgelegt
+wurde. In das Rechteck wird zentriert Text geschrieben. Au\ss erdem werden
+die Mitten der Bildr\"ander mit den Mitten der Rechtecksseiten verbunden.\\
+\indent Wirklich un\"ubersichtlich ist die Parallelschaltung. Hier werden
+zun\"achst acht Punkte, vier f\"ur jede Seite bestimmt. Diese Pukte bezeichnen
+die vertikale Mitte des Bildrandes, die vertikale Mitte des inneren Randes
+sowie die vertikalen Mitten der R\"ande der Teilwiderst\"ande. Diese werden
+so, wie in den Beispielen zu sehen, verbunden. Falls es sie genauer interessiert,
+werfen Sie bitte einen Blick in den Quellcode und zeichnen Sie es ich auf, denn
+das ist zielf\"uhrender als es hier in Worte zu fassen.
+Nachdem der ben\"otigte Teil der Schaltung gemalt wurde, k\"onnen nun die
+Teilwiderst\"ande in den vorgesehenen Bereichen dargestellt werden. 
+\section{Beispiele}
+Die Beispiele sind auf Grund der Bilder ziemlich umfangreich.
+Zu jedem Beispiel geh\"ort eine Konsolenausgabe
+(die sich auch als \texttt{.txt}-Datei im \texttt{output}-Ordner finden l\"asst)
+sowie vier Bilder. 
+\newcommand{\images}[1]{
+  Bild f\"ur $k=1$:
+  \begin{center}
+    \includegraphics[width=.8\textwidth]{images/r#1-k1.png}  
+  \end{center}
+  Bild f\"ur $k=2$:
+  \begin{center}
+    \includegraphics[width=.8\textwidth]{images/r#1-k2.png}  
+  \end{center}
+  \pagebreak
+  Bild f\"ur $k=3$:
+  \begin{center}
+    \includegraphics[width=.8\textwidth]{images/r#1-k3.png}  
+  \end{center}
+  Bild f\"ur $k=4$:
+  \begin{center}
+    \includegraphics[width=.8\textwidth]{images/r#1-k4.png}  
+  \end{center}
+}
+\pagebreak
+\subsection{Beispiel 1 (R=500)}
+Ausgabe:
+\begin{verbatim}
+k=1: 470.0
+k=2:   500.3802: par(4700.0, 560.0)
+k=3:   500.0000: seq(100.0, seq(180.0, 220.0))
+k=4:   500.0000: seq(100.0, seq(180.0, 220.0))
+\end{verbatim}
+\images{500}
+\pagebreak
+\subsection{Beispiel 2 (R=140)}
+\begin{verbatim}
+k=1: 150.0
+k=2:   140.4255: par(150.0, 2200.0)
+k=3:   139.9494: par(2700.0, par(820.0, 180.0))
+k=4:   140.0000: par(150.0, seq(680.0, seq(220.0, 1200.0)))
+\end{verbatim}
+\images{140}
+\pagebreak
+\subsection{Beispiel 3 (R=314)}
+\begin{verbatim}
+k=1: 330.0
+k=2:   314.7265: par(6800.0, 330.0)
+k=3:   314.0556: par(330.0, seq(1800.0, 4700.0))
+k=4:   313.9993: par(1000.0, seq(120.0, par(1200.0, 470.0)))
+\end{verbatim}
+\images{314}
+\pagebreak
+\subsection{Beispiel 4 (R=315)}
+\begin{verbatim}
+k=1: 330.0
+k=2:   314.7265: par(330.0, 6800.0)
+k=3:   315.0000: par(560.0, seq(390.0, 330.0))
+k=4:   315.0000: par(560.0, seq(390.0, 330.0))
+\end{verbatim}
+\images{315}
+\pagebreak
+\subsection{Beispiel 5 (R=1620)}
+\begin{verbatim}
+k=1: 1500.0
+k=2:  1620.0000: seq(1500.0, 120.0)
+k=3:  1620.0000: seq(1500.0, 120.0)
+k=4:  1620.0000: seq(1500.0, 120.0)
+\end{verbatim}
+\images{1620}
+\pagebreak
+\subsection{Beispiel 6 (R=2719)}
+\begin{verbatim}
+k=1: 2700.0
+k=2:  2700.0000: seq(1200.0, 1500.0)
+k=3:  2720.0000: seq(1000.0, seq(220.0, 1500.0))
+k=4:  2719.0000: seq(par(220.0, 180.0), seq(820.0, 1800.0))
+\end{verbatim}
+\images{2719}
+\pagebreak
+\subsection{Beispiel 7 (R=4242)}
+\begin{verbatim}
+k=1: 3900.0
+k=2:  4230.0000: seq(3900.0, 330.0)
+k=3:  4240.7767: seq(3900.0, par(390.0, 2700.0))
+k=4:  4242.0000: seq(seq(270.0, 3900.0), par(120.0, 180.0))
+\end{verbatim}
+\images{4242}
+\pagebreak
+\subsection{Beispiel 8 (R=1337)}
+\begin{verbatim}
+k=1: 1200.0
+k=2:  1330.0000: seq(330.0, 1000.0)
+k=3:  1336.7961: seq(680.0, par(3300.0, 820.0))
+k=4:  1336.9985: par(2200.0, seq(3300.0, par(390.0, 150.0)))
+\end{verbatim}
+\images{1337}
+\pagebreak
+\subsection{Beispiel 9 (R=2018)}
+\begin{verbatim}
+k=1: 2200.0
+k=2:  2020.0000: seq(820.0, 1200.0)
+k=3:  2018.1818: seq(1200.0, par(1800.0, 1500.0))
+k=4:  2018.0091: seq(1500.0, par(820.0, par(3900.0, 2200.0)))
+\end{verbatim}
+\images{2018}
+\pagebreak
+\section{Quellcode}
+Ich habe fast alle Kommentare entfernt und der Code folgt nicht mehr
+dem pep8-Standard, da die vielen L\"ucken nur Platzverschwendung w\"aren.
+\lstset{language=Python}
+\subsection{Imports}
+\begin{lstlisting}
+from PIL import Image, ImageDraw, ImageFont
+from collections import Counter
+import sys
+from pathlib import Path
+\end{lstlisting}
+\subsection{Widerstandsklassen}
+\begin{lstlisting}[frame=single]
+class Resistor():      
+  def __init__(self, value):    
+    self.value = value
+    self.parts = [value, ]
+  def __str__(self):
+    return str(self.value)
+  def get_structure(self):
+    return str(self.value)
+  def get_value(self):
+    return self.value
+  def draw(self, dctx, fnt, x1, y1, x2, y2, xr, yr):
+    center = ((x1 + x2) // 2, (y1 + y2) // 2)
+    dctx.line((x1, center[1], center[0]-xr//2, center[1]), fill=(0, 0, 0, 255))
+    dctx.line((center[0]+xr//2, center[1], x2, center[1]), fill=(0, 0, 0, 255))
+    dctx.rectangle((center[0]-xr//2, center[1]-yr//2, center[0] +
+      xr//2, center[1]+yr//2), outline=(0, 0, 0, 255), fill=(0, 100, 200, 255))
+    t = str(self.get_value()) + ' Ohm'
+    ts = dctx.textsize(t)
+    dctx.text((center[0]-ts[0]//2, center[1]-ts[1]//2), t, fill=(0, 0, 0, 255))
+
+class ParallelResistor():
+  def __init__(self, part1, part2):
+    self.part1 = part1
+    self.part2 = part2
+    self.parts = self.part1.parts + self.part2.parts 
+  def get_value(self):                                 
+    return (self.part1.get_value()
+            * self.part2.get_value()) \
+        / (self.part1.get_value()
+            + self.part2.get_value())                
+  def draw(self, dctx, fnt, x1, y1, x2, y2, xr, yr):
+    margin = xr // 3
+    lc = (x1, (y1 + y2) // 2)         # center, left
+    lm = (x1+margin, lc[1])           # center of margin, left
+    llc = (lm[0], lm[1]+(y2-y1)//4)   # lower corner, left
+    luc = (lm[0], lm[1]-(y2-y1)//4)   # upper corner, left
+    rc = (x2, lc[1])                  # center, right
+    rm = (x2-margin, rc[1])           # center of margin, right
+    rlc = (rm[0], rc[1]+(y2-y1)//4)   # lower corner, right
+    ruc = (rm[0], rc[1]-(y2-y1)//4)   # upper corner, right
+    dctx.line((lc, lm), fill=(0, 0, 0, 255))
+    dctx.line((rc, rm), fill=(0, 0, 0, 255))
+    dctx.line((llc, luc), fill=(0, 0, 0, 255))
+    dctx.line((rlc, ruc), fill=(0, 0, 0, 255))
+    self.part1.draw(dctx, fnt, x1+margin,
+                    y1, x2-margin, (y1+y2)//2, xr, yr)
+    self.part2.draw(dctx, fnt, x1+margin,
+                    (y1+y2)//2, x2-margin, y2, xr, yr)
+  def get_structure(self):
+    return f'par({self.part1.get_structure()}, {self.part2.get_structure()})'
+  def __str__(self):
+    return f'{self.get_value():>10.4f}: {self.get_structure()}'
+
+class SequentialResistor():
+  def __init__(self, part1, part2):
+    self.set_parts(part1, part2)
+    self.parts = self.part1.parts + self.part2.parts
+  def set_parts(self, p, q):
+    if p.get_value() > q.get_value():
+      self.set_parts(q, p)
+    self.part1 = p
+    self.part2 = q
+  def draw(self, dctx, fnt, x1, y1, x2, y2, xr, yr):
+    self.part1.draw(dctx, fnt, x1, y1, (x1+x2)//2, y2, xr, yr)
+    self.part2.draw(dctx, fnt, (x1+x2)//2, y1, x2, y2, xr, yr)
+  def get_value(self):
+    return self.part1.get_value() + self.part2.get_value()
+  def get_structure(self):
+    return f'seq({self.part1.get_structure()}, {self.part2.get_structure()})'
+  def __str__(self):
+    return f'{self.get_value():>10.4f}: {self.get_structure()}'
+\end{lstlisting}
+\subsection{Finder-Klasse}
+\begin{lstlisting}[frame=single]
+class ResistorFinder:
+  def __init__(self, max_parts, parts, img_path=str(Path.home())):
+    # constant to define how many resistors can be combined
+    self.k = max_parts
+    self.img_path = img_path
+    # initiates the base parts
+    self.set_base_parts(parts)
+    # calculates all the combined parts
+    self.set_combined_parts(self.k)
+    self.combined_parts = [sorted(self.combined_parts[i], key=lambda x: x.get_value(
+    )) for i in range(len(self.combined_parts))]
+  def set_base_parts(self, parts): #[...]
+  def get(self, value, max_k=4): #[...]
+  def set_combined_parts(self, k): #[...]
+  def remove_duplicates(self, resistors): #[...]
+  def base_parts_available(self, resistor):
+    c = Counter(resistor.parts)      
+    for key in c.keys():             
+        if c[key] > self.base_parts.get(key, 0):
+            return False             
+    return True                     
+\end{lstlisting}
+\subsection{Finden aller Widerst\"ande}
+\begin{lstlisting}[frame=single]
+def set_base_parts(self, parts):
+  self.base_parts = Counter()
+  self.combined_parts = [[], ]
+  for p in parts:                                       
+    self.base_parts[p] = self.base_parts.get(p, 0) + 1  
+    self.combined_parts[0].append(Resistor(p))
+
+def set_combined_parts(self, k):
+  cb = self.combined_parts
+  if k < 2: 
+    return
+  if len(cb) < k - 1:
+    self.set_combined_parts(k - 1)
+  print(f'Finding for k={k}')
+  candidates = []
+  count = 0
+  max_count = sum([len(cb[i-1]) * len(cb[k-i-1]) for i in range(1, k//2+1)])
+  for l in range(1, k // 2 + 1):
+    sub_candidates = []
+    for p1 in cb[l-1]:    
+      for p2 in cb[k-l-1]:
+        par = ParallelResistor(p1, p2)
+        if self.base_parts_available(par):
+          sub_candidates.append(par)
+        seq = SequentialResistor(p1, p2)
+        if self.base_parts_available(seq):
+          sub_candidates.append(seq)
+        count += 1
+        print(f'{count/max_count*100:.1f} %', end='\r')
+    self.remove_duplicates(sub_candidates)
+    candidates.extend(sub_candidates)
+  self.remove_duplicates(candidates)
+  cb.append(candidates)
+  print(f'Found all for k={k}')
+\end{lstlisting}
+\subsection{Finden und Zur\"uckgeben des besten Widerstandes}
+\begin{lstlisting}[frame=single]
+def get(self, value, max_k=4):
+  best_by_k = []
+  parts = []
+  for i, p in enumerate(self.combined_parts):
+    parts.extend(p)
+    parts = sorted(parts, key=lambda x: x.get_value())
+    a, b = 0, len(parts)-1
+    while a + 1 != b:
+      c = (a + b) // 2
+      c_value = parts[c].get_value()
+      if c_value > value:
+        b = c
+      elif c_value < value:
+        a = c
+      else:
+        break
+    if a + 1 == b:
+      if abs(value-parts[a].get_value()) < abs(value-parts[b].get_value()):
+        best_by_k.append(parts[a])
+      else:
+        best_by_k.append(parts[b])
+    else:
+      for j in range(i, len(self.combined_parts)):
+        best_by_k.append(parts[c])
+      break
+  for i, r in enumerate(best_by_k):
+    draw_resistor(r, f'output/r{value}-k{i+1}')
+  with open(f'output/r{value}.txt', 'w') as f:
+    for i, r in enumerate(best_by_k):
+      f.write(f'k={i+1}: {r}\n')
+  return best_by_k
+\end{lstlisting}
+\subsection{Hauptfunktion}
+\begin{lstlisting}[frame=single]
+def widerstand():
+  path = 'bwinf37-runde1/a5-Widerstand/beispieldaten/test'
+  if len(sys.argv) > 1:
+    path = sys.argv[1]
+  with open(path) as f:
+    parts = [float(x) for x in f.readlines()]
+  print(parts)
+  rf = ResistorFinder(4, parts)
+  while True:
+    v = float(input('R: '))
+    print('----------------')
+    options = rf.get(v)
+    for i, r in enumerate(options):
+      print(f'k={i+1}: {r}')
+    print('----------------')
+
+if __name__ == '__main__':
+    widerstand()
+ 
+\end{lstlisting}
+\end{document}

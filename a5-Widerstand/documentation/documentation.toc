@@ -1,0 +1,26 @@
+\babel@toc {ngerman}{}
+\contentsline {section}{\numberline {1}Lösungsidee}{1}
+\contentsline {subsection}{\numberline {1.1}Ermittlung der Widerst\"ande}{2}
+\contentsline {subsection}{\numberline {1.2}Visualisierung}{2}
+\contentsline {section}{\numberline {2}Umsetzung}{2}
+\contentsline {subsection}{\numberline {2.1}Modellierung}{2}
+\contentsline {subsection}{\numberline {2.2}Berechnung der Widerst\"ande}{3}
+\contentsline {subsection}{\numberline {2.3}Finden des besten Widerstandes}{3}
+\contentsline {subsection}{\numberline {2.4}Visualisierung}{4}
+\contentsline {section}{\numberline {3}Beispiele}{5}
+\contentsline {subsection}{\numberline {3.1}Beispiel 1 (R=500)}{6}
+\contentsline {subsection}{\numberline {3.2}Beispiel 2 (R=140)}{8}
+\contentsline {subsection}{\numberline {3.3}Beispiel 3 (R=314)}{10}
+\contentsline {subsection}{\numberline {3.4}Beispiel 4 (R=315)}{12}
+\contentsline {subsection}{\numberline {3.5}Beispiel 5 (R=1620)}{14}
+\contentsline {subsection}{\numberline {3.6}Beispiel 6 (R=2719)}{16}
+\contentsline {subsection}{\numberline {3.7}Beispiel 7 (R=4242)}{18}
+\contentsline {subsection}{\numberline {3.8}Beispiel 8 (R=1337)}{20}
+\contentsline {subsection}{\numberline {3.9}Beispiel 9 (R=2018)}{22}
+\contentsline {section}{\numberline {4}Quellcode}{24}
+\contentsline {subsection}{\numberline {4.1}Imports}{24}
+\contentsline {subsection}{\numberline {4.2}Widerstandsklassen}{24}
+\contentsline {subsection}{\numberline {4.3}Finder-Klasse}{25}
+\contentsline {subsection}{\numberline {4.4}Finden aller Widerst\"ande}{25}
+\contentsline {subsection}{\numberline {4.5}Finden und Zur\"uckgeben des besten Widerstandes}{26}
+\contentsline {subsection}{\numberline {4.6}Hauptfunktion}{26}

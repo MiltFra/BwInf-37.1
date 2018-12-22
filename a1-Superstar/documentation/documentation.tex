@@ -1,0 +1,349 @@
+\documentclass[a4paper,10pt,ngerman]{scrartcl}
+\usepackage{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[a4paper,margin=2.5cm,footskip=0.5cm]{geometry}
+
+% Die nächsten drei Felder bitte anpassen:
+\newcommand{\Aufgabe}{Aufgabe 1: Superstar} % Aufgabennummer und Aufgabennamen angeben
+\newcommand{\TeamID}{00922}       % Team-ID aus dem PMS angeben
+\newcommand{\TeamName}{Zweiundvierzig} % Team-Namen angeben
+\newcommand{\Namen}{Franz Miltz} % Namen der Bearbeiter/-innen dieser Aufgabe angeben
+ 
+% Kopf- und Fußzeilen
+\usepackage{scrlayer-scrpage, lastpage}
+\setkomafont{pageheadfoot}{\large\textrm}
+\lohead{\Aufgabe}
+\rohead{Team-ID: \TeamID}
+\cfoot*{\thepage{}/\pageref{LastPage}}
+
+% Position des Titels
+\usepackage{titling}
+\setlength{\droptitle}{-1.0cm}
+
+% Für mathematische Befehle und Symbole
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Für Bilder
+\usepackage{graphicx}
+
+% Für Algorithmen
+\usepackage{algpseudocode}
+
+% Für Quelltext
+\usepackage{listings}
+\lstset{language=Python}
+\usepackage{color}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\lstset{
+  keywordstyle=\color{blue},commentstyle=\color{mygreen},
+  stringstyle=\color{mymauve},rulecolor=\color{black},
+  basicstyle=\footnotesize\ttfamily,numberstyle=\tiny\color{mygray},
+  captionpos=b, % sets the caption-position to bottom
+  keepspaces=true, % keeps spaces in text
+  numbers=left, numbersep=5pt, showspaces=false,showstringspaces=true,
+  showtabs=false, stepnumber=2, tabsize=2, title=\lstname
+}
+\lstdefinelanguage{JavaScript}{ % JavaScript ist als einzige Sprache noch nicht vordefiniert
+  keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof, new, return, switch, this, throw, try, typeof, var, void, while, with},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  sensitive=true
+}
+% Diese beiden Pakete müssen zuletzt geladen werden
+%\usepackage{hyperref} % Anklickbare Links im Dokument
+\usepackage{cleveref}
+\usepackage{csquotes}
+% Daten für die Titelseite
+\title{\textbf{\Huge\Aufgabe}}
+\author{\LARGE Team-ID: \LARGE \TeamID \\\\
+	    \LARGE Team-Name: \LARGE \TeamName \\\\
+	    \LARGE Bearbeiter/-innen dieser Aufgabe: \\ 
+	    \LARGE \Namen\\\\}
+\date{\LARGE\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\vspace{0.5cm}
+
+\section{Lösungsidee}
+Das Problem besteht darin einen Algorithmus zu finden, f\"ur den der Average Case bei stochastisch
+gleichverteilten Eingaben optimal ist. In anderen Worten: W\"urde man alle m\"oglichen Anordnungen der
+Eingaben gleichzeitig betrachten, so w\"are der Preis minimal.\\
+\indent Um das Problem zu modellieren wird offensichtlich ein Graph ben\"otigt, bei dem die
+Knoten die Personen/Accounts sind und die Kanten beschreiben, wer wem folgt. Ein Graph ist ein
+Tupel aus einer endlichen Menge von Knoten und einer endlichen Menge Kanten. Eine Kante ist ein
+geordnetes Paar von Knoten (der Graph ist offensichtlich gerichtet). In unserem Fall kann eine Kante
+nur existieren oder eben nicht. Eine Markierung ist nicht notwendig. Au\ss erdem kann es maximal
+von jedem Knoten zu jedem anderen Knoten genau eine Kante geben. 
+\begin{align}
+  V &= \{v_1, v_2, .., v_n\} \\
+  |V| &=: N\\
+  E &= \{(V_a, V_b), (V_c, V_d), ...\} \text{ mit } a,b,c,d \in [1, N] \subset \mathbb{N}\\
+  |E| &\leq N\cdot(N-1)
+\end{align}
+Das Ziel ist es nun so schnell wie m\"oglich alle Knoten als Superstars
+auszuschlie\ss en. Man muss also versuchen, aus jeder Anfrage so viel wie m\"oglich
+Information zu erhalten. Die folgenden \"Uberlegungen sind essenziell:
+\begin{enumerate}
+  \item Wenn Person A Person B folgt, k\"onnen wir Person A als Superstar
+        ausschlie\ss en.
+  \item Wenn Person A Person B nicht folgt, k\"onnen wir Person B als Superstar
+        ausschlie\ss en.
+\end{enumerate}  
+Wenn wir uns nun zwei Mengen, Kandidaten $K$ und Nicht-Kandidaten $\bar{K}$, zur Hilfe nehmen, gilt Folgendes:
+\begin{align}
+  K \cup \bar{K} &= V\\
+  K \cap \bar{K} &= \emptyset\\
+  (v_1, v_2)\in E &\Rightarrow v_1 \in \bar{K}\\
+  (v_1, v_2)\notin E &\Rightarrow v_2 \in \bar{K}
+\end{align}
+Wenn man also ein Paar $(v_1, v_2)$ betrachtet, wobei beide Knoten noch potentielle
+Superstars sind, kann man genau einen der beiden Knoten ausschlie\ss en, wenn man wei\ss,
+ob solch eine Kante existiert. Somit sollten erst m\"oglichst viele Kandidaten \"uber diesen
+Weg ausgeschlossen werden.\\
+\indent Sobald nurnoch ein Kandidat \"ubrig ist, m\"ussen alle Beziehungen dieses einzelnen
+Knotens mit allen anderen Knoten \"uberpr\"uft werden. Dabei ist es vollkommen egal, ob
+zun\"achst gepr\"uft wird, ob alle Knoten diesem Knoten folgen, oder, ob diese Knoten keinem 
+anderen Knoten folgt.\\
+\indent Mit diesem Ansatz wird nun sichergestellt, dass die optimalen Anfragen unter
+Ber\"ucksichtigung des zur Verf\"ugung stehenden Wissens gestellt werden.
+\section{Umsetzung}
+Die Umsetzung erfolgte in Python 3 und der einzige \texttt{import} war \texttt{sys}, um
+auf die Attribute beim Ausf\"uhren in der Command-Line zuzugreifen. Die Sprache eignet
+sich insofern gut, als dass der Code relativ kurz ist und bereits Mengen
+(\texttt{set}) implementiert
+wurden, was angesichts der L\"osungsidee sehr Vorteilhaft ist.\\
+\indent Das Programm kann genutzt werden, indem es mit dem Python3-Interpreter und einer
+Beispieldatei als Argument aufgerufen wird. Die Datei kann auf Linux-Systemen direkt
+ausgef\"uhrt werden. Der Output erfolgt durch den Output-Stream, d.h. direkt in die 
+Konsole.\\
+\indent Es ist nat\"urlich unm\"oglich stets die optimale L\"osung zu finden, da es dem
+Programm nicht erlaubt ist auf die daf\"ur notwendigen Informationen R\"ucksicht zu
+nehmen. Auf Grund der verwendeten Mengen und deren Interation ist das Programm 
+\textbf{nicht deterministisch}. Das wird sich vor allem in den Beispielen \"au\ss ern.
+\subsection{Graph}
+Zun\"achst wurde ein Graph implementiert. Dieser hat folgende Attribute:
+\begin{itemize}
+  \item \texttt{n}: \texttt{int}, Anzahl der Knoten 
+  \item \texttt{v}: \texttt{set} mit Knoten als Elemente
+  \item \texttt{e}: \texttt{set} mit Beziehungen \texttt{(v1, v2)} als Eintr\"age
+  \item \texttt{price}: \texttt{int}, Anzahl der Anfragen bzw. Preis in Euro
+\end{itemize} Hinzu kommen die Funktionen: 
+\begin{itemize}
+  \item \texttt{\_\_init\_\_(self, path)}: Konstruktor, setzt Attribute basierend auf Eingabedatei
+  \item \texttt{request(self, node1, node2)}:\\ Gibt \texttt{True} zur\"uck, wenn es die Kante 
+        \texttt{(node1, node2)} gibt; inkrementiert den Preis
+\end{itemize}
+Diese Implementation ist nahezu minimal, aber vollkommen ausreichend f\"ur das Problem.
+Der eigentliche Algorithmus ben\"otigt nur diesen Graphen, um Anfragen zu stellen.
+\subsection{Hauptteil}
+Zur L\"osung des Problems, wurde eine Klasse mit folgenden Attributen erstellt:
+\begin{itemize}
+  \item \texttt{g}: Der Graph
+  \item \texttt{links}: \texttt{set}, die bereits abgefragten Kanten
+  \item \texttt{candidates}: \texttt{set}, zu Beginn enth\"alt es alle Elemente aus \texttt{g.v} ($K$)
+  \item \texttt{not\_candidates}: \texttt{set}, zu Beginn leer ($\bar{K}$)
+\end{itemize}
+Auff\"allig ist hier, dass die Kanten auch hier als \texttt{set} verwaltet werden, obwohl
+somit der tats\"achliche Wert dieser Kanten verloren geht. Das ist m\"oglich, weil unmittelbar
+nach jeder Anfrage an den Graphen bereits entschieden werden kann, welche Konsequenzen das
+Ergebnis hat, und dieser Wert sp\"ater \"uberfl\"ussig wird.\\
+\indent Das Programm wird durch eine \texttt{run}-Funktion ausgef\"uhrt. Diese enth\"alt
+eine Schleife, die immer wieder \texttt{request\_best} aufruft, bis entweder jener Aufruf
+wahr zur\"uckgibt oder keine Kandidaten mehr \"ubrig sind.
+\indent Weiterhin interessant ist die \texttt{request}-Funktion. Sie ist dazu da Anfragen
+an den Graphen zu stellen und das Erebnis auszuwerten. Dabei wird zuerst die Anfrage gestellt
+und wenn entweder \texttt{node1} ein Kandidat ist und jemandem folgt oder \texttt{node2}
+ein Kandidat ist, dem von \texttt{node1} nicht gefolgt wird, wird der jeweilige Knoten
+aus $K$ entfernt und zu $\bar{K}$ hinzugef\"ugt.\\
+\indent Nun ist es die Aufgabe der \texttt{request\_best}-Funktion einen Funktionsaufruf 
+von \texttt{request} durchzuf\"uhren, der m\"oglichst optimal ist. Dabei wird zun\"achst
+eine M\"oglichkeit gesucht eine Anfrage zwischen zwei verschiedenen Kandidaten 
+durchzuf\"uhren. Sollte das m\"oglich sein, so gibt die Funktion \texttt{False} zur\"uck. Wenn nicht,
+wird mit dem zweiten Teil, der \texttt{check\_last}-Funktion fortgefahren. Hier wird f\"ur
+alle Knoten in $\bar{K}$ gepr\"uft, ob eine zu dem letzten Kandidaten noch nicht gepr\"uft
+wurde. Auch hier wird \texttt{False} zur\"uckgegeben, wenn solch eine Anfrage m\"oglich
+ist. Sollte auch nach diesem Muster keine m\"ogliche Anfrage gefunden werden, kann wahr
+zur\"uckgegeben werden, denn der letzte Knoten ist nun mit Sicherheit ein Superstar, denn
+er wurde weder bei den Anfragen, ob der Knoten jemandem folgt, noch bei den Anfragen, ob
+jemand dem Knoten folgt, aus der Menge der Kandidaten entfernt.
+\subsection{Ergebnis}
+Mit diesem Algorithmus liegt der optimale Fall bei $2(N-1)$ Anfragen/Euro, insofern 
+ein Superstar exisitiert. Denn dann sind alle Anfragen, die Kandidaten ausschlie\ss en 
+bereits Teil der unbedingt notwendigen Anfragen, die einen Superstar verifizieren. Sollte
+kein Superstar exisitieren, liegt der Best-Case nat\"urlich bei $N$, da jede Kante genau
+einen Knoten ausschlie\ss en kann. Beide F\"alle sind sehr unwahrscheinlich.\\
+\indent Der Worst-Case mit und ohne Superstar ist $3(N-1)$, da zun\"achst alle Knoten bis
+auf einen Kandidaten ausgeschlossen werden k\"onnen und im Anschluss alle Verfikationskanten
+($=2(N-1)$) gerp\"uft werden. Die letzte Anfrage legt dann fest, ob der letzte Kandidat
+ein Superstar ist oder nicht.
+\section{Beispiele}
+In diesem Programm wurde kein Benchmark durchgef\"uhrt, was die ben\"otigte Zeit
+ber\"ucksichtigt, da jene vernachl\"assigbar gering ist.\\
+\indent Weiterhin werde ich nur bei den Beispielen 1, 2 und 3 die Folge von Anfragen angeben, da
+es ansosnten zu viele werden. Es ist klar, dass beim erneuten Ausf\"uhren mit hoher
+Wahrscheinlichkeit ein anderer Preis zustande kommt. Somit sollten Sie sich nicht
+wundern, wenn sie die Ergebnisse nicht bzw. nicht sofort reproduzieren k\"onnen. Leider
+ist es au\ss erdem unm\"oglich f\"ur alle Eingaben alle M\"oglichkeiten auszuprobieren,
+da die Zahl jener M\"oglichkeiten mit $N!$ berechnet wird und somit schneller als
+exponentiell w\"achst.
+\subsection{Beispiel 1 (BwInf)}
+Befehl: \texttt{./superstar.py beispieldaten/superstar1.txt}\\
+Ausgabe:
+\begin{verbatim}
+Selena -> Justin
+Justin -> Hailey
+Justin -> Selena
+Hailey -> Justin
+
+Total cost: EUR 4
+Superstar found: Justin
+\end{verbatim}
+Die ersten f\"unf Zeilen sind die durchgef\"uhrten Anfragen. 
+\textquote{\texttt{Selena -> Justin}}
+entspricht also \textquote{\texttt{Folgt Selena Justin?}}.
+In den letzten beiden Zeilen befinden sich der Preis f\"ur diese Untersuchung
+sowie das Ergebnis. In diesem Fall wurden vier Anfragen gestellt, es kostet
+also 4 Euro. Das Ergebnis ist, dass Justin der Superstar ist.
+\subsection{Beispiel 2 (BwInf)}
+Befehl: \texttt{./superstar.py beispieldaten/superstar2.txt}\\
+Ausgabe:
+\begin{verbatim}
+Dijkstra -> Codd
+Dijkstra -> Turing
+Dijkstra -> Hoare
+Dijkstra -> Knuth
+Codd -> Dijkstra
+Knuth -> Dijkstra
+Hoare -> Dijkstra
+Turing -> Dijkstra
+
+Total cost: EUR 8
+Superstar found: Dijkstra
+\end{verbatim}
+Diese Ausgabe scheint optimal zu sein, da alle Anfragen den Superstar beinhalten.
+\subsection{Beispiel 3 (BwInf)}
+Befehl: \texttt{./superstar.py beispieldaten/superstar3.txt}\\
+Ausgabe:
+\begin{verbatim}
+Sjoukje -> Rinus
+Sjoukje -> Edsger
+Edsger -> Jitse
+Jitse -> Rineke
+Jitse -> Peter
+Jitse -> Pia
+Jitse -> Jorrit
+Sjoukje -> Jitse
+
+Total cost: EUR 8
+There is no superstar in this graph!
+\end{verbatim}
+\subsection{Beispiel 4 (BwInf)}
+Befehl: \texttt{./superstar.py beispieldaten/superstar4.txt}\\
+Ausgabe:
+\begin{verbatim}
+Clara -> Oliver
+Clara -> Sixten
+...
+Oscar -> Folke
+Jack -> Folke
+
+Total cost: EUR 160
+Superstar found: Folke 
+\end{verbatim}
+Diese Ausgabe ist ebenfalls relativ gut, Preise von 220+ Euro sind bei diesem 
+Graphen nicht abwegig.
+\subsection{Beispiel 5 (Zweiundvierzig)}
+Da das Programm nicht deterministisch arbeitet, wird es unm\"oglich einen Spezialfall
+zu finden, bei dem entweder immer die optimale L\"osung gefunden wird, oder die Ausgabe
+immer dem Worst-Case entspricht. Somit kann sich an dieser Stelle kein Beispiel befinden,
+das eine solche Eigenheit das Programms aufzeigt.
+\section{Quellcode}
+S\"amtliche Inputs und Outputs sowie Kommentare wurden aus dem Code entfernt, k\"onnen
+aber in \texttt{superstar.py} gefunden werden.
+\subsection{Graph}
+\begin{lstlisting}[frame=single]
+class graph:
+  def __init__(self, path):                           
+      with open(path) as f:                           
+          lines = f.readlines()                      
+          self.v = set(lines[0].rstrip('\n').split(' ')) 
+          self.n = len(self.v)                        
+          self.e = set()                             
+          for l in [x.rstrip('\n').split(' ') for x in lines[1:]]:
+              if len(l) == 2:
+                  self.e.add((l[0], l[1]))            
+          self.price = 0                             
+  def request(self, node1, node2):                  
+      self.price += 1    
+      return (node1, node2) in self.e    
+\end{lstlisting}
+\subsection{Star-Finder}
+\begin{lstlisting}[frame=single]
+class star_finder:                                      
+
+    def __init__(self, g):                              
+        self.g = g                                     
+        self.links = set()                            
+        self.candidates = g.v.copy()
+        self.not_candidates = set() 
+
+    def request(self, node1, node2):             
+        r = self.g.request(node1, node2)        
+        self.links.add((node1, node2))         
+        if r and node1 in self.candidates:       
+            self.candidates.remove(node1)        
+            self.not_candidates.add(node1)      
+        elif not r and node2 in self.candidates:      
+            self.candidates.remove(node2)            
+            self.not_candidates.add(node2)
+
+    def run(self):
+        while len(self.candidates) > 0:             
+            if self.request_best():                
+                break
+
+    def request_best(self):  
+        if len(self.candidates) > 1:              
+            for i in self.candidates:            
+                for j in self.candidates:       
+                    if j != i:                 
+                        self.request(i, j)    
+                        return False         
+        return self.check_last()            
+
+    def check_last(self):
+        for c in self.candidates:
+            for n in self.not_candidates:  
+                if n != c:                
+                    if (n,c) not in self.links:
+                        self.request(n, c)
+                        return False
+                    elif (c, n) not in self.links:
+                        self.request(c, n)
+                        return False
+        return True                            
+\end{lstlisting}
+\subsection{Hauptmethode}
+\begin{lstlisting}[frame=single]
+def superstar():             
+    path = sys.argv[1]          
+    g = graph(path)             
+    sf = star_finder(g)        
+    sf.run()                  
+
+if __name__ == '__main__':
+    superstar()                                            
+
+ 
+\end{lstlisting}
+\end{document}
